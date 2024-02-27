@@ -1,0 +1,62 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+  schemas  = ["user", "map", "auth", "info"]
+}
+
+model Info {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  city        String
+
+  AgeGroup     Int[]
+  access_amea  Boolean @default(false)
+  parking_amea Boolean @default(false)
+  pets         Boolean @default(false)
+
+  games_kounies     Boolean @default(false)
+  games_tsoulithres Boolean @default(false)
+  games_trampales   Boolean @default(false)
+  games_wall        Boolean @default(false)
+  games_alogakia    Boolean @default(false)
+  game_sxoini       Boolean @default(false)
+
+  rest_trapezia Int @default(0)
+  rest_karekles Int @default(0)
+  rest_pagkakia Int @default(0)
+  rest_skiasi   Int @default(0)
+
+  category String
+  images   String[]
+
+  rating  Float
+  reviews Int   @default(0)
+
+  latitude  Float
+  longitude Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("map")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String   @unique
+  password  String
+  name      String
+  role      String   @default("member")
+  createdAt DateTime @default(now())
+  lastLogin DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("user")
+}
