@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import { Logger } from 'logger-ts-node';
 
 import express from 'express';
 const app = express();
@@ -9,11 +9,10 @@ import bcrypt from 'bcrypt';
 
 app.listen(
     PORT,
-    () => console.log(chalk.green(`Server is running on port ${PORT}`))
+    () => Logger.info(`Server is listening on port ${PORT}`)
 )
 
 app.post('/api/login', async (req, res) => {
-    // Handle login logic here, using Prisma for database interactions
     const prisma = new PrismaClient();
   
     try {
@@ -33,9 +32,15 @@ app.post('/api/login', async (req, res) => {
         res.status(401).json({ error: 'Invalid email or password' });
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      Logger.error('Error during login:', error);
       res.status(500).json({ error: 'Failed to log in' });
     } finally {
       await prisma.$disconnect();
     }
   });
+
+app.get('/api/post', (req, res) => {
+    res.status(200).send({
+      test: 'Post created successfully!'
+    })
+});
