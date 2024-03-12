@@ -2,8 +2,27 @@ import express from 'express';
 import { Logger } from 'logger-ts-node';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import session from 'express-session';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 
 const router = express.Router();
+
+// Configure session
+const sessionOptions = {
+  secret: 's3cr3t',
+  resave: true,
+  saveUninitialized: true,
+  cookie: { secure: false },
+  store: new PrismaSessionStore(
+    new PrismaClient(),
+    {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdFunction: undefined,
+      dbRecordIdIsSessionId: true,
+    }
+  )
+}
+router.use(session(sessionOptions));
 
 router.post('/api/login', async (req, res) => {
   const prisma = new PrismaClient();
@@ -32,14 +51,9 @@ router.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // you have to make session for the user here.
-    // use express-session or any other library to make session
-    // and use 
+    req.session.user = user.id;
 
-    // for now, lets say you have a session for the user
-    // and you can send the user data to the client
-
-    return res.status(200).json({ email: user.email, name: user.name , sid: '<session id>' });
+    return res.status(200).json({ email: user.email, name: user.name , sid: req.sessionID });
   } catch (error) {
     Logger.error('Error during login:', error);
     return res.status(500).json({ error: 'Failed to log in' });
